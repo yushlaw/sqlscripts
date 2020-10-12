@@ -1,3 +1,7 @@
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[reduceColumnWidth]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[reduceColumnWidth]
+GO
+
 CREATE PROCEDURE [reduceColumnWidth]
   @schemaName varchar(MAX),
   @tableName varchar(MAX)
@@ -16,15 +20,16 @@ SELECT
   'MAX(LEN([' + c.COLUMN_NAME + '])' + ') FROM [' + c.TABLE_SCHEMA + '].[' + c.TABLE_NAME + ']' P2,
   ') ' P3,
   '[' + c.TABLE_SCHEMA + ']' P4,
-  '[' + c.TABLE_NAME + ']' P5
+  '[' + c.TABLE_NAME + ']' P5,
+  DATA_TYPE
 INTO #TMP
 FROM INFORMATION_SCHEMA.Tables t
 JOIN INFORMATION_SCHEMA.Columns c
 ON c.TABLE_CATALOG = t.TABLE_CATALOG
   AND c.TABLE_SCHEMA = t.TABLE_SCHEMA
   AND c.TABLE_NAME = t.TABLE_NAME
-WHERE TABLE_TYPE = 'BASE_TABLE'
-  AND DATA_TYPE IN ('nvarchar', 'varchar')
+WHERE TABLE_TYPE = 'BASE TABLE'
+  AND DATA_TYPE IN ('nvarchar', 'varchar', 'nchar')
   AND c.TABLE_SCHEMA = @schemaName
   AND c.TABLE_NAME = @tableName
 
@@ -83,7 +88,7 @@ SET @cmdCursor = CURSOR FOR
     BEGIN TRY
       BEGIN TRANSACTION
         EXEC (@stmt)
-      END TRANSACTION
+      COMMIT TRANSACTION
     END TRY
     BEGIN CATCH
       ROLLBACK TRANSACTION
@@ -95,3 +100,5 @@ SET @cmdCursor = CURSOR FOR
   DEALLOCATE @cmdCursor
 
 DROP TABLE #TMP
+
+END
