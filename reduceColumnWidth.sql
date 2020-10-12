@@ -20,8 +20,7 @@ SELECT
   'MAX(LEN([' + c.COLUMN_NAME + '])' + ') FROM [' + c.TABLE_SCHEMA + '].[' + c.TABLE_NAME + ']' P2,
   ') ' P3,
   '[' + c.TABLE_SCHEMA + ']' P4,
-  '[' + c.TABLE_NAME + ']' P5,
-  DATA_TYPE
+  '[' + c.TABLE_NAME + ']' P5
 INTO #TMP
 FROM INFORMATION_SCHEMA.Tables t
 JOIN INFORMATION_SCHEMA.Columns c
